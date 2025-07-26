@@ -2,102 +2,123 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using Color = UnityEngine.Color;
+
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] public Animator animator;
-    [SerializeField] public BoxCollider2D boxCollider2D;
+    [SerializeField] private Animator animator;
+    [SerializeField] private BoxCollider2D boxCollider2D;
+    [SerializeField] private float speed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckDistance = 0.01f;
 
-    [SerializeField] public float speed;
-    [SerializeField] public float jump;
+    [SerializeField] private Transform groundCheckPoint;
+    [SerializeField] private float groundCheckRadius = 0.2f;
 
-    private Vector2 boxSize;
-    private Vector2 boxOffset;
+    private Vector2 originalBoxSize;
+    private Vector2 originalBoxOffset;
     private Rigidbody2D rb2D;
+    private bool isGrounded;
+
     private void Awake()
     {
         Debug.Log("Player Controller awake");
         rb2D = GetComponent<Rigidbody2D>();
     }
+
     void Start()
     {
-        //Storing Collider Original Values
-        boxSize = boxCollider2D.size;
-        boxOffset = boxCollider2D.offset;
+        // Store original collider values
+        originalBoxSize = boxCollider2D.size;
+        originalBoxOffset = boxCollider2D.offset;
     }
-    private void Crouch(bool crouch)
-    {
-        if (crouch == true)
-        {
-            float offX = -0.1f;
-            float offY = 0.58f;
-            float sizeX = 0.6f;
-            float sizeY = 1.28f;
 
-            boxCollider2D.size = new Vector2 (sizeX,sizeY);
-            boxCollider2D.offset = new Vector2 (offX, offY);
-        }
-        else 
-        {
-            boxCollider2D.size = boxSize;
-            boxCollider2D.offset = boxOffset;
-        }
-        animator.SetBool("Crouch", crouch);
+    private void Update()
+    {
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        bool jumpInput = Input.GetButtonDown("Jump");
+        bool crouchInput = Input.GetKey(KeyCode.LeftControl);
+
+        CheckGrounded();
+        HandleMovement(horizontal, jumpInput);
+        HandleCrouch(crouchInput);
+        UpdateAnimations(horizontal);
     }
-    private void PlayeMovementAnimation(float horizonal , float vertical)
+
+    private void CheckGrounded()
     {
-        //Run
-        animator.SetFloat("Speed", Mathf.Abs(horizonal));
+        //// Check if player is grounded using a raycast
+        //RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down,
+        //                    boxCollider2D.bounds.extents.y + groundCheckDistance, groundLayer);
+        //isGrounded = hit.collider != null;
 
-        Vector3 scale = transform.localScale;
-        if (horizonal < 0f)
-        {
-            scale.x = -1f * Mathf.Abs(scale.x);
-        }
-        else if (horizonal > 0)
-        {
-            scale.x = Mathf.Abs(scale.x);
-        }
-        transform.localScale = scale;
+        Vector2 rayStart = boxCollider2D.bounds.center;
+        rayStart.y -= boxCollider2D.bounds.extents.y;
 
-        //Jump
-        if (vertical > 0)
+        // Shoot ray slightly downward
+        RaycastHit2D hit = Physics2D.Raycast(
+            rayStart,
+            Vector2.down,
+            groundCheckDistance,
+            groundLayer
+        );
+
+        isGrounded = hit.collider != null;
+
+        // Visual debug
+        Debug.DrawRay(rayStart, Vector2.down * groundCheckDistance,
+                     isGrounded ? Color.green : Color.red);
+    }
+    private void HandleMovement(float horizontal, bool jumpInput)
+    {
+        // Horizontal movement
+        rb2D.velocity = new Vector2(horizontal * speed, rb2D.velocity.y);
+
+        // Jump if grounded and jump input is pressed
+        if (jumpInput && isGrounded)
         {
-            animator.SetBool("Jump", true);
+            boxCollider2D.size = new Vector2(0.6f, 1.28f);
+            boxCollider2D.offset = new Vector2(-0.1f, 0.58f);
+            rb2D.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+        }
+        boxCollider2D.size = originalBoxSize;
+        boxCollider2D.offset = originalBoxOffset;
+    }
+
+    private void HandleCrouch(bool crouchInput)
+    {
+        if (crouchInput)
+        {
+            // Crouch collider settings
+            boxCollider2D.size = new Vector2(0.6f, 1.28f);
+            boxCollider2D.offset = new Vector2(-0.1f, 0.58f);
         }
         else
         {
-            animator.SetBool("Jump", false);
+            // Restore original collider settings
+            boxCollider2D.size = originalBoxSize;
+            boxCollider2D.offset = originalBoxOffset;
         }
+
+        animator.SetBool("Crouch", crouchInput);
     }
-    private void MoveCharacter(float horizontal,float vertical)
+
+    private void UpdateAnimations(float horizontal)
     {
-        //Move Character Horizontally
-        Vector3 position = transform.position;
-        position.x += horizontal * speed * Time.deltaTime;
-        transform.position = position;
+        // Run animation
+        animator.SetFloat("Speed", Mathf.Abs(horizontal));
 
-        //Move Character Vertically
-        if (vertical > 0)
+        // Flip character sprite based on movement direction
+        if (horizontal != 0)
         {
-            rb2D.AddForce(new Vector2(0f, jump), ForceMode2D.Force);
+            Vector3 scale = transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * Mathf.Sign(horizontal);
+            transform.localScale = scale;
         }
-    }
-    void Update()
-    {
-        float horizonal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Jump");
 
-        PlayeMovementAnimation(horizonal,vertical);
-        MoveCharacter(horizonal,vertical);
-
-        if (Input.GetKey(KeyCode.LeftControl))
-        {
-            Crouch(true);
-        }
-        else
-        {
-            Crouch(false);
-        }
+        // Jump animation
+        animator.SetBool("Jump", !isGrounded);
     }
 }
