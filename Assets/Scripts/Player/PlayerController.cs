@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,6 +17,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float groundCheckRadius = 0.2f;
+    [SerializeField] private ScoreController scoreController;
 
     private Vector2 originalBoxSize;
     private Vector2 originalBoxOffset;
@@ -79,12 +81,9 @@ public class PlayerController : MonoBehaviour
         // Jump if grounded and jump input is pressed
         if (jumpInput && isGrounded)
         {
-            boxCollider2D.size = new Vector2(0.6f, 1.28f);
-            boxCollider2D.offset = new Vector2(-0.1f, 0.58f);
             rb2D.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
         }
-        boxCollider2D.size = originalBoxSize;
-        boxCollider2D.offset = originalBoxOffset;
+
     }
 
     private void HandleCrouch(bool crouchInput)
@@ -120,5 +119,11 @@ public class PlayerController : MonoBehaviour
 
         // Jump animation
         animator.SetBool("Jump", !isGrounded);
+    }
+
+    public void PickUpKey()
+    {
+        Debug.Log("Player picked up the key");
+        scoreController.IncreaseScore(10);
     }
 }
