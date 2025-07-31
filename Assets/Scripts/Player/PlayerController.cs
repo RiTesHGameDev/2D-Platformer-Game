@@ -1,81 +1,103 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Animator animator;
-    public BoxCollider2D boxCollider2D;
+    [SerializeField] public Animator animator;
+    [SerializeField] public BoxCollider2D boxCollider2D;
 
-    // Start is called before the first frame update
+    [SerializeField] public float speed;
+    [SerializeField] public float jump;
+
+    private Vector2 boxSize;
+    private Vector2 boxOffset;
+    private Rigidbody2D rb2D;
+    private void Awake()
+    {
+        Debug.Log("Player Controller awake");
+        rb2D = GetComponent<Rigidbody2D>();
+    }
     void Start()
     {
+        //Storing Collider Original Values
+        boxSize = boxCollider2D.size;
+        boxOffset = boxCollider2D.offset;
     }
-    void HandleJumpCrouch()
+    private void Crouch(bool crouch)
     {
-        float verticalInput = Input.GetAxisRaw("Vertical");
-        Vector2 boxsize = boxCollider2D.size;
-        Vector2 boxOffset = boxCollider2D.offset;
-
-        if (Input.GetKey(KeyCode.LeftControl))
+        if (crouch == true)
         {
-            animator.SetBool("Crouch", true);
-            boxOffset.x = -0.1f;
-            boxOffset.y = 0.58f;
-            boxsize.x = 0.6f;
-            boxsize.y = 1.28f;
+            float offX = -0.1f;
+            float offY = 0.58f;
+            float sizeX = 0.6f;
+            float sizeY = 1.28f;
+
+            boxCollider2D.size = new Vector2 (sizeX,sizeY);
+            boxCollider2D.offset = new Vector2 (offX, offY);
         }
         else 
         {
-            animator.SetBool("Crouch", false);
-            boxOffset.x = 0f;
-            boxOffset.y = 0.92f;
-            boxsize.x = 0.5f;
-            boxsize.y = 1.92f;
+            boxCollider2D.size = boxSize;
+            boxCollider2D.offset = boxOffset;
         }
-        boxCollider2D.size = boxsize;
-        boxCollider2D.offset = boxOffset;
-
-        if (verticalInput > 0 || Input.GetKey(KeyCode.Space))
-        {
-            animator.SetBool("Jump", true);
-            boxOffset.x = 0f;
-            boxOffset.y = 1.68f;
-            boxsize.x = 0.5f;
-            boxsize.y = 1.3f;
-        }
-        else
-        {
-            animator.SetBool("Jump", false);
-            boxOffset.x = 0f;
-            boxOffset.y = 0.92f;
-            boxsize.x = 0.5f;
-            boxsize.y = 1.92f;
-        }
-
+        animator.SetBool("Crouch", crouch);
     }
-       void HandleIdleWalkRun()
+    private void PlayeMovementAnimation(float horizonal , float vertical)
     {
-        float speed = Input.GetAxisRaw("Horizontal");
-        animator.SetFloat("Speed", Mathf.Abs(speed));
+        //Run
+        animator.SetFloat("Speed", Mathf.Abs(horizonal));
 
         Vector3 scale = transform.localScale;
-        if (speed < 0f)
+        if (horizonal < 0f)
         {
             scale.x = -1f * Mathf.Abs(scale.x);
         }
-        else if (speed > 0)
+        else if (horizonal > 0)
         {
             scale.x = Mathf.Abs(scale.x);
         }
         transform.localScale = scale;
-        
-        
+
+        //Jump
+        if (vertical > 0)
+        {
+            animator.SetBool("Jump", true);
+        }
+        else
+        {
+            animator.SetBool("Jump", false);
+        }
     }
-    // Update is called once per frame
+    private void MoveCharacter(float horizontal,float vertical)
+    {
+        //Move Character Horizontally
+        Vector3 position = transform.position;
+        position.x += horizontal * speed * Time.deltaTime;
+        transform.position = position;
+
+        //Move Character Vertically
+        if (vertical > 0)
+        {
+            rb2D.AddForce(new Vector2(0f, jump), ForceMode2D.Force);
+        }
+    }
     void Update()
     {
-        HandleIdleWalkRun();
-        HandleJumpCrouch();
+        float horizonal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Jump");
+
+        PlayeMovementAnimation(horizonal,vertical);
+        MoveCharacter(horizonal,vertical);
+
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            Crouch(true);
+        }
+        else
+        {
+            Crouch(false);
+        }
     }
 }
