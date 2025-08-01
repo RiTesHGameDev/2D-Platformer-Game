@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb2D;
     private bool isGrounded;
 
+    private LifeController lifeController;
+
     private void Awake()
     {
         Debug.Log("Player Controller awake");
