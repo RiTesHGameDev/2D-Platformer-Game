@@ -1,43 +1,59 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 public class EnemyPatrolling : MonoBehaviour
 {
     [SerializeField]private Animator animator;
     [SerializeField]private float patrolSpeed ;
-    [SerializeField]private Vector3 pointA;
-    [SerializeField]private Vector3 pointB;
+    [SerializeField] private float edgeCooldown = 0.5f;
 
-    private Vector3 targetPoint;
+    [SerializeField] private GameObject groundDetector;
+    [SerializeField] private float rayDistance;
+    [SerializeField] private LayerMask groundLayer;
 
-    private SpriteRenderer spriteRenderer;
+    private BoxCollider2D boxCollider2D;
+
+    private int directionChanger = 1;
+    //private bool isFacingRight = true;
+    //private float lastFlipTime;
+    //private bool canFlip = true;
+
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        boxCollider2D = GetComponent<BoxCollider2D>();
     }
-    private void Start() => SetPatrolPoints();
+    private void Start(){}
     private void Update()
     {
         Patrol();
     }
-    private void SetPatrolPoints()
-    {
-        transform.position = pointA;
-        targetPoint = pointB;
-    }
     private void Patrol()
     {
-        animator.SetFloat("moveSpeed", Mathf.Abs(patrolSpeed));
-        transform.position = Vector3.MoveTowards(transform.position, targetPoint, patrolSpeed * Time.deltaTime);
-        if (transform.position == targetPoint)
+        animator.SetBool("IsPatrol", true);
+
+        transform.Translate(directionChanger * Vector2.right * patrolSpeed * Time.deltaTime);
+
+        Vector2 rayStart = boxCollider2D.bounds.center;
+        rayStart.y -= boxCollider2D.bounds.extents.y;
+        // Shoot ray slightly downward
+        RaycastHit2D hit = Physics2D.Raycast(
+            rayStart,
+            Vector2.down,
+            rayDistance,
+            groundLayer
+        );
+
+        if (!hit)
         {
-            targetPoint = (targetPoint == pointA) ? pointB : pointA;
-            FlipSprite();
+            Vector3 scaleVector = transform.localScale;
+            scaleVector.x *= -1;
+            transform.localScale = scaleVector;
+            directionChanger *= -1;
         }
-    }
-    private void FlipSprite()
-    {
-        spriteRenderer.flipX = !spriteRenderer.flipX;
-    }
+        Debug.DrawRay(groundDetector.transform.position, Vector2.down * rayDistance, Color.red);
+
+    }    
 }
