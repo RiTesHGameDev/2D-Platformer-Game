@@ -55,9 +55,4 @@ public class LifeController : MonoBehaviour
        life = maxLife;
        Life();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
 }

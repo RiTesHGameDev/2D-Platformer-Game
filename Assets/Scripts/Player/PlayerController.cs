@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private ScoreController scoreController;
+    [SerializeField] private GameOverController gameOverController;
 
     private Vector2 originalBoxSize;
     private Vector2 originalBoxOffset;
@@ -134,11 +135,8 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("PLayer Death by Enemy");
         animator.SetBool("Death",true);
-        ReloadLevel();
+        gameOverController.PlayerDied();
+        this.enabled = false;
     }
 
-    private void ReloadLevel()
-    {
-        SceneManager.LoadScene(0);
-    }
 }
