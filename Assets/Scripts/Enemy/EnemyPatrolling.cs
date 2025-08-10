@@ -16,9 +16,6 @@ public class EnemyPatrolling : MonoBehaviour
     private BoxCollider2D boxCollider2D;
 
     private int directionChanger = 1;
-    //private bool isFacingRight = true;
-    //private float lastFlipTime;
-    //private bool canFlip = true;
 
     private void Awake()
     {

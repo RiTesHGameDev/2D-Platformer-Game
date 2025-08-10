@@ -5,12 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] private LifeController lifeController;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.GetComponent<PlayerController>() != null)
         {
-            Debug.Log("Player Dead");
-            SceneManager.LoadScene("Game");
+            PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
+            int currentscene = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentscene);
         }
     }
 }
