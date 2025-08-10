@@ -55,11 +55,6 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGrounded()
     {
-        //// Check if player is grounded using a raycast
-        //RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down,
-        //                    boxCollider2D.bounds.extents.y + groundCheckDistance, groundLayer);
-        //isGrounded = hit.collider != null;
-
         Vector2 rayStart = boxCollider2D.bounds.center;
         rayStart.y -= boxCollider2D.bounds.extents.y;
 
@@ -134,9 +129,10 @@ public class PlayerController : MonoBehaviour
     public void PlayerDeath()
     {
         Debug.Log("PLayer Death by Enemy");
-        animator.SetBool("Death",true);
+        animator.SetTrigger("Death");
         gameOverController.PlayerDied();
         this.enabled = false;
+        boxCollider2D.enabled = false;
     }
 
 }
