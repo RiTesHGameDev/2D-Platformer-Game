@@ -8139,6 +8139,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 682685289}
     m_Modifications:
+    - target: {fileID: 1646904195498252205, guid: f412f4face0f1c04fb1b9a22a15ba202,
+        type: 3}
+      propertyPath: gameOverController
+      value: 
+      objectReference: {fileID: 273399779}
     - target: {fileID: 1906712743035503653, guid: f412f4face0f1c04fb1b9a22a15ba202,
         type: 3}
       propertyPath: m_Name
@@ -8199,11 +8204,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1906712743035503658, guid: f412f4face0f1c04fb1b9a22a15ba202,
+    - target: {fileID: 1906712743035503659, guid: f412f4face0f1c04fb1b9a22a15ba202,
         type: 3}
-      propertyPath: lifeController
-      value: 
-      objectReference: {fileID: 223526083}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f412f4face0f1c04fb1b9a22a15ba202, type: 3}
 --- !u!1001 &2027099370597859871
