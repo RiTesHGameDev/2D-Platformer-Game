@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1906712743035503656}
   - component: {fileID: 1906712743035503659}
-  - component: {fileID: 1906712743035503658}
+  - component: {fileID: 1646904195498252205}
   m_Layer: 0
   m_Name: OutlineBoundry
   m_TagString: Untagged
@@ -43,7 +43,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -59,7 +59,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 38, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1906712743035503658
+--- !u!114 &1646904195498252205
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,6 +68,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1906712743035503653}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31ead894e71c051429fc56863a911280, type: 3}
+  m_Script: {fileID: 11500000, guid: 5e966264bc7fc2f40aca57f5a3ba098f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameOverController: {fileID: 0}
