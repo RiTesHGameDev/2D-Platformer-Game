@@ -11,6 +11,7 @@ public class LevelOverController : MonoBehaviour
         {
             Debug.Log("Level Complete");
             LevelManager.Instance.MarkCurrentLevelComplete();
+            SoundManager.Instance.Play(Sounds.levelComplete);
             int currentscene = SceneManager.GetActiveScene().buildIndex;
             SceneManager.LoadScene(currentscene + 1);
         }

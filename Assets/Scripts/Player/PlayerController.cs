@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 originalBoxOffset;
     private Rigidbody2D rb2D;
     private bool isGrounded;
+    private bool wasMoving = false;
 
     private LifeController lifeController;
 
@@ -76,10 +77,27 @@ public class PlayerController : MonoBehaviour
     {
         // Horizontal movement
         rb2D.velocity = new Vector2(horizontal * speed, rb2D.velocity.y);
+        // Handle movement sound
+        bool isMoving = Mathf.Abs(horizontal) > 0.1f && isGrounded;
 
+        if (isMoving && !wasMoving)
+        {
+            // Start playing movement sound when starting to move
+            SoundManager.Instance.PlayFootStep(Sounds.PlayerMove);
+            SoundManager.Instance.SoundFootStep.GetComponent<AudioSource>().loop = true;
+        }
+        else if (!isMoving && wasMoving)
+        {
+            // Stop movement sound when stopping
+            SoundManager.Instance.Stop(Sounds.PlayerMove);
+            SoundManager.Instance.SoundFootStep.GetComponent<AudioSource>().loop = false;
+        }
+
+        wasMoving = isMoving;
         // Jump if grounded and jump input is pressed
         if (jumpInput && isGrounded)
         {
+            SoundManager.Instance.Play(Sounds.PlayerJump);
             rb2D.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
         }
 
@@ -130,6 +148,7 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("PLayer Death by Enemy");
         animator.SetTrigger("Death");
+        SoundManager.Instance.Stop(Sounds.PlayerMove);
         gameOverController.PlayerDied();
         this.enabled = false;
         boxCollider2D.enabled = false;

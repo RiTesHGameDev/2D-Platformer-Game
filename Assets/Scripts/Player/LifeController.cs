@@ -15,6 +15,7 @@ public class LifeController : MonoBehaviour
     public void ReduceLife()
     {
         ChangeLife(-1);
+        SoundManager.Instance.Play(Sounds.ReduceLife);
     }
     public void ChangeLife(int amount)
     {
