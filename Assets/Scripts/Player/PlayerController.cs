@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Color = UnityEngine.Color;
 
-
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Animator animator;
@@ -21,11 +20,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private ScoreController scoreController;
     [SerializeField] private GameOverController gameOverController;
 
+    [SerializeField] private GameObject shield;
+    [SerializeField] private float shieldDuration;
+
     private Vector2 originalBoxSize;
     private Vector2 originalBoxOffset;
     private Rigidbody2D rb2D;
+
     private bool isGrounded;
     private bool wasMoving = false;
+
+    public static bool hasdoubleJump = false;
+    private bool canDoubleJump;
+
+    private bool hasShield = false;
+    private float shieldTimer = 0f;
 
     private LifeController lifeController;
 
@@ -52,6 +61,35 @@ public class PlayerController : MonoBehaviour
         HandleMovement(horizontal, jumpInput);
         HandleCrouch(crouchInput);
         UpdateAnimations(horizontal);
+
+        if (hasShield)
+        {
+            shieldTimer -= Time.deltaTime;
+
+            if (shieldTimer < 0f)
+            {
+                DeactivateShield();
+            }
+        }
+    }
+    public void ActiveShield(float duration)
+    {
+        hasShield = true;
+        shieldTimer = duration;
+
+        if(shield != null)
+        {
+            shield.SetActive(true);
+        }
+    }
+
+    private void DeactivateShield()
+    {
+        hasShield = false;
+        if(shield != null)
+        {
+            shield.SetActive(false);
+        }
     }
 
     private void CheckGrounded()
@@ -95,12 +133,36 @@ public class PlayerController : MonoBehaviour
 
         wasMoving = isMoving;
         // Jump if grounded and jump input is pressed
-        if (jumpInput && isGrounded)
+        if (jumpInput)
         {
-            SoundManager.Instance.Play(Sounds.PlayerJump);
-            rb2D.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            if(isGrounded) 
+            { 
+                SoundManager.Instance.Play(Sounds.PlayerJump);
+                rb2D.velocity =  new Vector2(rb2D.velocity.x,jumpForce);
+                canDoubleJump = true;
+            }
+            else
+            {
+                DoubleJump();
+            }
         }
 
+    }
+    private void DoubleJump()
+    {
+        if (hasdoubleJump && canDoubleJump )
+        {
+            SoundManager.Instance.Play(Sounds.PlayerJump);
+            rb2D.velocity = new Vector2(rb2D.velocity.x, jumpForce);
+
+            canDoubleJump = false;
+        }
+    }
+    public void GrantDoubleJump()
+    {
+        hasdoubleJump = true;
+        
+        Debug.Log("Dowble Jump Granted!");
     }
 
     private void HandleCrouch(bool crouchInput)
@@ -153,5 +215,10 @@ public class PlayerController : MonoBehaviour
         this.enabled = false;
         boxCollider2D.enabled = false;
     }
+    public bool IsShieldActive()
+    {
+        return hasShield;
+    }
+
 
 }

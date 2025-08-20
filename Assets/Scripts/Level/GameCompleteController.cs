@@ -13,6 +13,7 @@ public class GameCompleteController : MonoBehaviour
             LevelManager.Instance.MarkCurrentLevelComplete();
             SoundManager.Instance.Play(Sounds.levelComplete);
             gameFinishController.GameFinished();
+            
         }
 
     }
