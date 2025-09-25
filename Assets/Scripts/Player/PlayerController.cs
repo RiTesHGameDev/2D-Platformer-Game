@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
         HandleMovement(horizontal, jumpInput);
         HandleCrouch(crouchInput);
-        UpdateAnimations(horizontal);
+        UpdateAnimations(horizontal,rb2D.velocity.y);
 
         if (hasShield)
         {
@@ -183,11 +183,12 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Crouch", crouchInput);
     }
 
-    private void UpdateAnimations(float horizontal)
+    private void UpdateAnimations(float horizontal,float vertical)
     {
         // Run animation
         animator.SetFloat("Speed", Mathf.Abs(horizontal));
-
+        animator.SetFloat("yVelocity", vertical);
+        
         // Flip character sprite based on movement direction
         if (horizontal != 0)
         {
@@ -198,6 +199,7 @@ public class PlayerController : MonoBehaviour
 
         // Jump animation
         animator.SetBool("Jump", !isGrounded);
+        Debug.Log("vertical value : " + vertical);
     }
 
     public void PickUpKey()
@@ -211,14 +213,19 @@ public class PlayerController : MonoBehaviour
         Debug.Log("PLayer Death by Enemy");
         animator.SetTrigger("Death");
         SoundManager.Instance.Stop(Sounds.PlayerMove);
-        gameOverController.PlayerDied();
-        this.enabled = false;
-        boxCollider2D.enabled = false;
+        StartCoroutine(DelayInGameScreen());
     }
     public bool IsShieldActive()
     {
         return hasShield;
     }
 
+    private IEnumerator DelayInGameScreen()
+    {
+        yield return new WaitForSeconds(2);
+        this.enabled = false;
+        boxCollider2D.enabled = false;
+        gameOverController.PlayerDied();
+    }
 
 }

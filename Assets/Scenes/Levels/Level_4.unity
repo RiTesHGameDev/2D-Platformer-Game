@@ -1473,6 +1473,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 27720051}
     m_Modifications:
+    - target: {fileID: 167547509701594459, guid: c7428a71b8f93e841a83883dc2a4b635,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.4433962
+      objectReference: {fileID: 0}
+    - target: {fileID: 167547509701594459, guid: c7428a71b8f93e841a83883dc2a4b635,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.3488608
+      objectReference: {fileID: 0}
+    - target: {fileID: 167547509701594459, guid: c7428a71b8f93e841a83883dc2a4b635,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.37046888
+      objectReference: {fileID: 0}
     - target: {fileID: 167547509701594460, guid: c7428a71b8f93e841a83883dc2a4b635,
         type: 3}
       propertyPath: m_Name
@@ -2163,7 +2178,7 @@ Transform:
   - {fileID: 1034496713}
   - {fileID: 1589720050}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1562328556
 PrefabInstance:
