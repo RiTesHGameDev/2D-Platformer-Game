@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Color = UnityEngine.Color;
 
 
@@ -23,6 +24,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 originalBoxOffset;
     private Rigidbody2D rb2D;
     private bool isGrounded;
+
+    private LifeController lifeController;
 
     private void Awake()
     {
@@ -125,5 +128,17 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Player picked up the key");
         scoreController.IncreaseScore(10);
+    }
+
+    public void PlayerDeath()
+    {
+        Debug.Log("PLayer Death by Enemy");
+        animator.SetBool("Death",true);
+        ReloadLevel();
+    }
+
+    private void ReloadLevel()
+    {
+        SceneManager.LoadScene(0);
     }
 }
