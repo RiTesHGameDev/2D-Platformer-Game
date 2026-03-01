@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Color = UnityEngine.Color;
 
-
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Animator animator;
@@ -21,10 +20,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private ScoreController scoreController;
     [SerializeField] private GameOverController gameOverController;
 
+    [SerializeField] private GameObject shield;
+    [SerializeField] private float shieldDuration;
+
     private Vector2 originalBoxSize;
     private Vector2 originalBoxOffset;
     private Rigidbody2D rb2D;
+
     private bool isGrounded;
+    private bool wasMoving = false;
+
+    public static bool hasdoubleJump = false;
+    private bool canDoubleJump;
+
+    private bool hasShield = false;
+    private float shieldTimer = 0f;
 
     private LifeController lifeController;
 
@@ -50,7 +60,36 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
         HandleMovement(horizontal, jumpInput);
         HandleCrouch(crouchInput);
-        UpdateAnimations(horizontal);
+        UpdateAnimations(horizontal,rb2D.velocity.y);
+
+        if (hasShield)
+        {
+            shieldTimer -= Time.deltaTime;
+
+            if (shieldTimer < 0f)
+            {
+                DeactivateShield();
+            }
+        }
+    }
+    public void ActiveShield(float duration)
+    {
+        hasShield = true;
+        shieldTimer = duration;
+
+        if(shield != null)
+        {
+            shield.SetActive(true);
+        }
+    }
+
+    private void DeactivateShield()
+    {
+        hasShield = false;
+        if(shield != null)
+        {
+            shield.SetActive(false);
+        }
     }
 
     private void CheckGrounded()
@@ -76,13 +115,54 @@ public class PlayerController : MonoBehaviour
     {
         // Horizontal movement
         rb2D.velocity = new Vector2(horizontal * speed, rb2D.velocity.y);
+        // Handle movement sound
+        bool isMoving = Mathf.Abs(horizontal) > 0.1f && isGrounded;
 
-        // Jump if grounded and jump input is pressed
-        if (jumpInput && isGrounded)
+        if (isMoving && !wasMoving)
         {
-            rb2D.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            // Start playing movement sound when starting to move
+            SoundManager.Instance.PlayFootStep(Sounds.PlayerMove);
+            SoundManager.Instance.SoundFootStep.GetComponent<AudioSource>().loop = true;
+        }
+        else if (!isMoving && wasMoving)
+        {
+            // Stop movement sound when stopping
+            SoundManager.Instance.Stop(Sounds.PlayerMove);
+            SoundManager.Instance.SoundFootStep.GetComponent<AudioSource>().loop = false;
         }
 
+        wasMoving = isMoving;
+        // Jump if grounded and jump input is pressed
+        if (jumpInput)
+        {
+            if(isGrounded) 
+            { 
+                SoundManager.Instance.Play(Sounds.PlayerJump);
+                rb2D.velocity =  new Vector2(rb2D.velocity.x,jumpForce);
+                canDoubleJump = true;
+            }
+            else
+            {
+                DoubleJump();
+            }
+        }
+
+    }
+    private void DoubleJump()
+    {
+        if (hasdoubleJump && canDoubleJump )
+        {
+            SoundManager.Instance.Play(Sounds.PlayerJump);
+            rb2D.velocity = new Vector2(rb2D.velocity.x, jumpForce);
+
+            canDoubleJump = false;
+        }
+    }
+    public void GrantDoubleJump()
+    {
+        hasdoubleJump = true;
+        
+        Debug.Log("Dowble Jump Granted!");
     }
 
     private void HandleCrouch(bool crouchInput)
@@ -103,11 +183,12 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Crouch", crouchInput);
     }
 
-    private void UpdateAnimations(float horizontal)
+    private void UpdateAnimations(float horizontal,float vertical)
     {
         // Run animation
         animator.SetFloat("Speed", Mathf.Abs(horizontal));
-
+        animator.SetFloat("yVelocity", vertical);
+        
         // Flip character sprite based on movement direction
         if (horizontal != 0)
         {
@@ -118,6 +199,7 @@ public class PlayerController : MonoBehaviour
 
         // Jump animation
         animator.SetBool("Jump", !isGrounded);
+        Debug.Log("vertical value : " + vertical);
     }
 
     public void PickUpKey()
@@ -130,9 +212,20 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("PLayer Death by Enemy");
         animator.SetTrigger("Death");
-        gameOverController.PlayerDied();
+        SoundManager.Instance.Stop(Sounds.PlayerMove);
+        StartCoroutine(DelayInGameScreen());
+    }
+    public bool IsShieldActive()
+    {
+        return hasShield;
+    }
+
+    private IEnumerator DelayInGameScreen()
+    {
+        yield return new WaitForSeconds(2);
         this.enabled = false;
         boxCollider2D.enabled = false;
+        gameOverController.PlayerDied();
     }
 
 }

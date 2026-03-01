@@ -4,28 +4,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameOverController : MonoBehaviour
+public class GameFinishController : MonoBehaviour
 {
-    [SerializeField] private Button restartButton;
     [SerializeField] private Button mainMenuButton;
     private Animator animator;
     private void Awake()
     {
-        restartButton.onClick.AddListener(ReloadLevel);
         mainMenuButton.onClick.AddListener(LoadLobby);
         animator = GetComponent<Animator>();
     }
-    public void PlayerDied()
+    public void GameFinished()
     {
-        SoundManager.Instance.Play(Sounds.PlayerDead);
         gameObject.SetActive(true);
-    }
-
-    private void ReloadLevel()
-    {
-        Debug.Log("Reloading Current Scene");
-        int currentscene = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentscene);
     }
     private void LoadLobby()
     {

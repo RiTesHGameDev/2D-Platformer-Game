@@ -14,7 +14,13 @@ public class LifeController : MonoBehaviour
 
     public void ReduceLife()
     {
+        if (playerController != null && playerController.IsShieldActive())
+        {
+            Debug.Log("Shield absorbed the hit! Life not reduced.");
+            return;
+        }
         ChangeLife(-1);
+        SoundManager.Instance.Play(Sounds.ReduceLife);
     }
     public void ChangeLife(int amount)
     {
